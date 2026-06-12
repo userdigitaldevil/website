@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# user data (lives on persistent volume in production)
+/data/
+/public/uploads/
+
+# claude code local settings
+/.claude/

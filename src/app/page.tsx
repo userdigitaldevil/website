@@ -1,66 +1,63 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { getDb } from '@/lib/db';
+import Timecode from '@/components/Timecode';
+import SplashAudio from '@/components/SplashAudio';
+import Link from 'next/link';
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+function mediaSrc(val: string, folder: string) {
+  if (!val) return '';
+  if (val.startsWith('/') || val.startsWith('http')) return val;
+  return `/uploads/${folder}/${val}`;
+}
+
+export default function SplashPage() {
+  const db = getDb();
+  const get = (key: string) => (db.prepare('SELECT value FROM content WHERE key=?').get(key) as any)?.value ?? '';
+
+  const name         = get('site_name') || 'YOUR NAME';
+  const splashVideo  = mediaSrc(get('splash_video'), 'splash');
+  const splashImage  = mediaSrc(get('splash_image'), 'content');
+  const splashMusic  = mediaSrc(get('splash_music'), 'music');
+  const splashText    = get('splash_text');
+  const splashTextMid = get('splash_text_mid');
+  const splashTextSub = get('splash_text_sub');
+  const showScroll    = splashText || splashTextMid || splashTextSub;
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="splash-page">
+      <section className="splash-hero">
+        <div className="splash-image-area">
+          <div className="splash-image-inner">
+            {splashVideo ? (
+              <video autoPlay muted loop playsInline src={splashVideo} />
+            ) : splashImage ? (
+              <img src={splashImage} alt="" />
+            ) : null}
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="splash-right">
+          <Timecode siteName={name} variant="inline" />
+          <Link href="/digital" className="splash-enter">ENTER</Link>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {showScroll && (
+        <section className="splash-scroll">
+          {splashText && (
+            <p className="splash-scroll-main">{splashText}</p>
+          )}
+          {(splashTextMid || splashTextSub) && (
+            <div className="splash-scroll-footer">
+              {splashTextMid && <p className="splash-scroll-mid">{splashTextMid}</p>}
+              {splashTextSub && <p className="splash-scroll-sub">{splashTextSub}</p>}
+            </div>
+          )}
+        </section>
+      )}
+
+      {splashMusic && <SplashAudio src={splashMusic} />}
+    </main>
   );
 }
