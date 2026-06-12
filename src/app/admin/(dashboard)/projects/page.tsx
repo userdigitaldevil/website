@@ -1,5 +1,20 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 type Project = {
   id: number;
@@ -24,6 +39,7 @@ export default function AdminProjects() {
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   async function load() {
     const data = await fetch('/api/projects').then(r => r.json());
@@ -92,6 +108,23 @@ export default function AdminProjects() {
     load();
   }
 
+  async function handleDragEnd(e: DragEndEvent) {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const ids = projects.map(p => p.id);
+    const oldIndex = ids.indexOf(Number(active.id));
+    const newIndex = ids.indexOf(Number(over.id));
+    if (oldIndex === -1 || newIndex === -1) return;
+    const reordered = arrayMove(projects, oldIndex, newIndex);
+    setProjects(reordered);
+    const res = await fetch('/api/projects/reorder', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: reordered.map(p => p.id) }),
+    });
+    if (!res.ok) { setMsg({ type: 'error', text: 'Reorder failed.' }); load(); }
+  }
+
   const coverSrc = form.cover_image
     ? (form.cover_image.startsWith('/') || form.cover_image.startsWith('http')
       ? form.cover_image
@@ -139,33 +172,73 @@ export default function AdminProjects() {
       </div>
 
       <p className="admin-section-title mt-2">All Projects ({projects.length})</p>
+      <p className="admin-reorder-hint">Drag the ⠿ handle to reorder projects.</p>
 
       {projects.length === 0 && (
         <p style={{ color: '#444', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>No projects yet.</p>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: 700 }}>
-        {projects.map(p => (
-          <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#0e0e0e', border: '1px solid #1a1a1a', borderRadius: 2, padding: '0.75rem 1rem' }}>
-            {p.cover_image && (
-              <img
-                src={p.cover_image.startsWith('/') || p.cover_image.startsWith('http') ? p.cover_image : `/api/uploads/photos/${p.cover_image}`}
-                alt=""
-                style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
-              />
-            )}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.1rem' }}>{p.title}</p>
-              {p.year && <p style={{ fontSize: '0.65rem', color: '#555', letterSpacing: '0.05em' }}>{p.year}</p>}
-              {p.description && <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '0.15rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</p>}
-            </div>
-            <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
-              <button className="admin-btn secondary small" onClick={() => startEdit(p)}>Edit</button>
-              <button className="admin-btn danger small" onClick={() => del(p.id)}>Delete</button>
-            </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: 700 }}>
+            {projects.map(p => (
+              <SortableProjectRow key={p.id} project={p} onEdit={startEdit} onDelete={del} />
+            ))}
           </div>
-        ))}
-      </div>
+        </SortableContext>
+      </DndContext>
     </>
+  );
+}
+
+function SortableProjectRow({
+  project: p,
+  onEdit,
+  onDelete,
+}: {
+  project: Project;
+  onEdit: (p: Project) => void;
+  onDelete: (id: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: p.id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 10 : undefined,
+    position: 'relative',
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#0e0e0e', border: '1px solid #1a1a1a', borderRadius: 2, padding: '0.75rem 1rem' }}>
+        <button
+          type="button"
+          className="admin-drag-handle inline"
+          aria-label="Drag to reorder"
+          {...attributes}
+          {...listeners}
+        >
+          ⠿
+        </button>
+        {p.cover_image && (
+          <img
+            src={p.cover_image.startsWith('/') || p.cover_image.startsWith('http') ? p.cover_image : `/api/uploads/photos/${p.cover_image}`}
+            alt=""
+            style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
+            draggable={false}
+          />
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.1rem' }}>{p.title}</p>
+          {p.year && <p style={{ fontSize: '0.65rem', color: '#555', letterSpacing: '0.05em' }}>{p.year}</p>}
+          {p.description && <p style={{ fontSize: '0.7rem', color: '#666', marginTop: '0.15rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.description}</p>}
+        </div>
+        <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+          <button className="admin-btn secondary small" onClick={() => onEdit(p)}>Edit</button>
+          <button className="admin-btn danger small" onClick={() => onDelete(p.id)}>Delete</button>
+        </div>
+      </div>
+    </div>
   );
 }
