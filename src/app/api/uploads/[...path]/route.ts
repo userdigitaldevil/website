@@ -5,6 +5,7 @@ import path from 'path';
 const MIME: Record<string, string> = {
   jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
   gif: 'image/gif', webp: 'image/webp', avif: 'image/avif',
+  ico: 'image/x-icon', svg: 'image/svg+xml',
   mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm',
   mp3: 'audio/mpeg', m4a: 'audio/mp4', wav: 'audio/wav',
   aac: 'audio/aac', ogg: 'audio/ogg',

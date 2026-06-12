@@ -7,7 +7,7 @@ const ALLOWED_FOLDERS = ['splash', 'music', 'content'];
 const ALLOWED_EXTS: Record<string, string[]> = {
   splash:  ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mov', 'webm'],
   music:   ['mp3', 'm4a', 'wav', 'aac', 'ogg'],
-  content: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'],
+  content: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'ico', 'svg'],
 };
 
 export async function POST(req: NextRequest) {

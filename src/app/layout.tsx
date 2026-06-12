@@ -4,10 +4,19 @@ import SiteFooter from '@/components/SiteFooter';
 import CustomCursor from '@/components/CustomCursor';
 import PageLoader from '@/components/PageLoader';
 import AnalyticsBeacon from '@/components/AnalyticsBeacon';
+import { getCachedContent } from '@/lib/content';
 
-export const metadata: Metadata = {
-  title: 'Portfolio',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getCachedContent();
+  const favicon = content['favicon'];
+  const iconUrl = favicon
+    ? (favicon.startsWith('/') || favicon.startsWith('http') ? favicon : `/api/uploads/content/${favicon}`)
+    : '/favicon.ico';
+  return {
+    title: 'Portfolio',
+    icons: { icon: iconUrl },
+  };
+}
 
 export const viewport: Viewport = {
   width: 'device-width',

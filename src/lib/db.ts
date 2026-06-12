@@ -99,6 +99,7 @@ function initDb(db: Database.Database) {
     ['splash_text_sub', ''],
     ['contact_text', ''],
     ['contact_image', ''],
+    ['favicon', ''],
   ];
   for (const [key, val] of defaults) insertContent.run(key, val);
 }

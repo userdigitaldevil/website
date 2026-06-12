@@ -10,12 +10,14 @@ export default function AdminContent() {
   const [uploadingMusic, setUploadingMusic] = useState(false);
   const [uploadingBioPhoto, setUploadingBioPhoto] = useState(false);
   const [uploadingContactImg, setUploadingContactImg] = useState(false);
+  const [uploadingFavicon, setUploadingFavicon] = useState(false);
 
   const splashImgRef   = useRef<HTMLInputElement>(null);
   const splashVidRef   = useRef<HTMLInputElement>(null);
   const musicRef       = useRef<HTMLInputElement>(null);
   const bioPhotoRef    = useRef<HTMLInputElement>(null);
   const contactImgRef  = useRef<HTMLInputElement>(null);
+  const faviconRef     = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch('/api/content').then(r => r.json()).then((data: Record<string, string>) => setFields(data));
@@ -65,6 +67,30 @@ export default function AdminContent() {
             <div className="admin-field">
               <label>Site Name (shown in timecode)</label>
               <input value={fields.site_name || ''} onChange={e => set('site_name', e.target.value)} />
+            </div>
+
+            {/* Favicon */}
+            <div className="admin-field">
+              <label>Favicon (.ico, .png, .svg)</label>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <input value={fields.favicon || ''} onChange={e => set('favicon', e.target.value)} placeholder="filename.ico or https://..." style={{ flex: 1 }} />
+                <button type="button" className="admin-btn secondary small" onClick={() => faviconRef.current?.click()} disabled={uploadingFavicon}>
+                  {uploadingFavicon ? '…' : 'Upload'}
+                </button>
+                <input ref={faviconRef} type="file" accept=".ico,.png,.svg,image/x-icon,image/png,image/svg+xml" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadMedia(f, 'content', 'favicon', setUploadingFavicon); }} />
+              </div>
+              {fields.favicon && (
+                <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <img
+                    src={fields.favicon.startsWith('/') || fields.favicon.startsWith('http') ? fields.favicon : `/api/uploads/content/${fields.favicon}`}
+                    alt="favicon preview"
+                    style={{ width: 32, height: 32, objectFit: 'contain', background: '#1a1a1a', borderRadius: 4, padding: 4 }}
+                  />
+                  <span style={{ fontSize: '0.65rem', color: '#555' }}>Save to apply site-wide</span>
+                  <button type="button" className="admin-btn danger small" onClick={() => set('favicon', '')}>Remove</button>
+                </div>
+              )}
             </div>
 
             {/* Splash Image */}
