@@ -20,6 +20,7 @@ html, body {
   font-family: var(--font);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -578,6 +579,7 @@ img, video { display: block; max-width: 100%; }
   /* Contact: tighter padding */
   .contact-content { padding: 0 1.25rem 4rem; flex-direction: row; align-items: flex-end; }
   .contact-image { width: 100px; }
+  .bio-text { margin-left: 0; }
   .contact-image { width: 160px; }
 
   /* Admin: single column on mobile */
