@@ -1,6 +1,7 @@
 import { getDb } from '@/lib/db';
 import Timecode from '@/components/Timecode';
 import SplashAudio from '@/components/SplashAudio';
+import SplashVideo from '@/components/SplashVideo';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +31,7 @@ export default function SplashPage() {
         <div className="splash-image-area">
           <div className="splash-image-inner">
             {splashVideo ? (
-              <video autoPlay muted loop playsInline src={splashVideo} />
+              <SplashVideo src={splashVideo} />
             ) : splashImage ? (
               <img src={splashImage} alt="" />
             ) : null}

@@ -527,13 +527,17 @@ img, video { display: block; max-width: 100%; }
     height: auto;
   }
 
-  .splash-image-inner img,
-  .splash-image-inner video {
+  .splash-image-inner img {
     width: 100%;
     height: auto;
     max-width: 100%;
-    max-height: none;
-    object-fit: unset;
+    display: block;
+  }
+
+  .splash-image-inner video {
+    width: 100%;
+    height: 56vw;
+    object-fit: cover;
     display: block;
   }
 
