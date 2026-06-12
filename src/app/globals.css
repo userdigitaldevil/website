@@ -27,24 +27,22 @@ img, video { display: block; max-width: 100%; }
 
 /* ── Timecode ── */
 .timecode {
-  position: absolute;
-  top: 1.5rem;
-  left: 16rem;
   font-size: var(--timecode-size);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
   pointer-events: none;
+  margin-bottom: 0.6rem;
 }
 
 /* ── Page header ── */
 .page-header {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding: 38vh 1.5rem 3rem;
+  justify-content: flex-end;
+  padding: 0 1.5rem 3rem;
+  min-height: 38vh;
   text-align: center;
 }
 
@@ -564,6 +562,22 @@ img, video { display: block; max-width: 100%; }
 
   /* Projects: single column */
   .projects-grid { grid-template-columns: 1fr; }
+
+  /* Page header: tighter on mobile */
+  .page-header {
+    min-height: 28vh;
+    padding: 0 1.25rem 2rem;
+  }
+
+  .timecode {
+    font-size: clamp(0.7rem, 3.5vw, 1rem);
+    margin-bottom: 0.5rem;
+  }
+
+  :root {
+    --nav-size: clamp(1.4rem, 6.5vw, 3rem);
+    --gap-nav: clamp(0.6rem, 3vw, 1.5rem);
+  }
 
   /* Bio: tighter padding on mobile */
   .bio-content {
