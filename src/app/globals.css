@@ -652,6 +652,9 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
 .admin-photo-card:hover .admin-drag-handle { opacity: 1; }
 .admin-drag-handle:hover { background: rgba(0, 0, 0, 0.85); color: #fff; }
 .admin-drag-handle:active { cursor: grabbing; }
+
+.admin-drag-handle.inline { position: static; opacity: 0.55; width: 22px; height: 22px; font-size: 0.8rem; }
+.admin-drag-handle.inline:hover { opacity: 1; }
 .admin-photo-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .admin-photo-card-info { padding: 0.6rem; display: flex; flex-direction: column; gap: 0.35rem; }
 .admin-photo-card-meta { font-size: 0.65rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
