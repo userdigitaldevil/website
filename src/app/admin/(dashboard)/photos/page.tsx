@@ -1,7 +1,24 @@
 'use client';
 import { useState, useEffect } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 type Photo = { id: number; filename: string; category: string; year: number; original_name: string | null };
+
+const groupKey = (p: Photo) => `${p.category}__${p.year}`;
 
 export default function AdminPhotos() {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -54,7 +71,38 @@ export default function AdminPhotos() {
     else setMsg({ type: 'error', text: 'Update failed.' });
   }
 
+  // Reorder one (category, year) group: optimistically rewrite the flat array
+  // at the exact positions the group occupied, then persist in one transaction.
+  async function reorderGroup(key: string, reordered: Photo[]) {
+    setPhotos(prev => {
+      const next = prev.slice();
+      const slots: number[] = [];
+      prev.forEach((p, i) => { if (groupKey(p) === key) slots.push(i); });
+      slots.forEach((flatIdx, k) => { next[flatIdx] = reordered[k]; });
+      return next;
+    });
+
+    const res = await fetch('/api/photos/reorder', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: reordered.map(p => p.id) }),
+    });
+    if (!res.ok) { setMsg({ type: 'error', text: 'Reorder failed.' }); load(); }
+  }
+
   const visible = filterCat === 'all' ? photos : photos.filter(p => p.category === filterCat);
+
+  // Build ordered (category, year) groups, preserving server sort order.
+  const groups: { key: string; category: string; year: number; items: Photo[] }[] = [];
+  const index = new Map<string, number>();
+  for (const p of visible) {
+    const key = groupKey(p);
+    if (!index.has(key)) {
+      index.set(key, groups.length);
+      groups.push({ key, category: p.category, year: p.year, items: [] });
+    }
+    groups[index.get(key)!].items.push(p);
+  }
 
   return (
     <>
@@ -98,37 +146,113 @@ export default function AdminPhotos() {
           </select>
         </div>
 
-        <div className="admin-grid">
-          {visible.map(p => (
-            <div className="admin-photo-card" key={p.id}>
-              <img src={`/api/uploads/photos/${p.filename}`} alt={p.original_name || ''} />
-              <div className="admin-photo-card-info">
-                <p className="admin-photo-card-meta">{p.original_name || p.filename}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
-                  <select
-                    value={p.category}
-                    onChange={e => updatePhoto(p.id, 'category', e.target.value)}
-                    style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.3rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2 }}
-                  >
-                    <option value="digital">Digital</option>
-                    <option value="iphone">iPhone</option>
-                  </select>
-                  <input
-                    type="number"
-                    value={p.year}
-                    onChange={e => updatePhoto(p.id, 'year', Number(e.target.value))}
-                    min={2000} max={2099}
-                    style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.3rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2, width: '100%' }}
-                  />
-                </div>
-                <div className="admin-photo-card-actions">
-                  <button className="admin-btn danger small" onClick={() => deletePhoto(p.id)}>Delete</button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="admin-reorder-hint">Drag the ⠿ handle to reorder photos within a year.</p>
+
+        {groups.map(group => (
+          <PhotoGroup
+            key={group.key}
+            group={group}
+            onReorder={reorderGroup}
+            onUpdate={updatePhoto}
+            onDelete={deletePhoto}
+          />
+        ))}
       </div>
     </>
+  );
+}
+
+function PhotoGroup({
+  group,
+  onReorder,
+  onUpdate,
+  onDelete,
+}: {
+  group: { key: string; category: string; year: number; items: Photo[] };
+  onReorder: (key: string, reordered: Photo[]) => void;
+  onUpdate: (id: number, field: string, value: string | number) => void;
+  onDelete: (id: number) => void;
+}) {
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const ids = group.items.map(p => p.id);
+
+  function handleDragEnd(e: DragEndEvent) {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIndex = ids.indexOf(Number(active.id));
+    const newIndex = ids.indexOf(Number(over.id));
+    if (oldIndex === -1 || newIndex === -1) return;
+    onReorder(group.key, arrayMove(group.items, oldIndex, newIndex));
+  }
+
+  return (
+    <div className="admin-photo-group">
+      <p className="admin-group-label">{group.category} · {group.year}</p>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={ids} strategy={rectSortingStrategy}>
+          <div className="admin-grid">
+            {group.items.map(p => (
+              <SortablePhotoCard key={p.id} photo={p} onUpdate={onUpdate} onDelete={onDelete} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+}
+
+function SortablePhotoCard({
+  photo,
+  onUpdate,
+  onDelete,
+}: {
+  photo: Photo;
+  onUpdate: (id: number, field: string, value: string | number) => void;
+  onDelete: (id: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: photo.id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="admin-photo-card">
+      <button
+        type="button"
+        className="admin-drag-handle"
+        aria-label="Drag to reorder"
+        {...attributes}
+        {...listeners}
+      >
+        ⠿
+      </button>
+      <img src={`/api/uploads/photos/${photo.filename}`} alt={photo.original_name || ''} draggable={false} />
+      <div className="admin-photo-card-info">
+        <p className="admin-photo-card-meta">{photo.original_name || photo.filename}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
+          <select
+            value={photo.category}
+            onChange={e => onUpdate(photo.id, 'category', e.target.value)}
+            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.3rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2 }}
+          >
+            <option value="digital">Digital</option>
+            <option value="iphone">iPhone</option>
+          </select>
+          <input
+            type="number"
+            value={photo.year}
+            onChange={e => onUpdate(photo.id, 'year', Number(e.target.value))}
+            min={2000} max={2099}
+            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.3rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2, width: '100%' }}
+          />
+        </div>
+        <div className="admin-photo-card-actions">
+          <button className="admin-btn danger small" onClick={() => onDelete(photo.id)}>Delete</button>
+        </div>
+      </div>
+    </div>
   );
 }

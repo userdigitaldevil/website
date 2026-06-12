@@ -634,7 +634,24 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
   margin-top: 1.5rem;
 }
 
-.admin-photo-card { background: #0e0e0e; border: 1px solid #1a1a1a; border-radius: 2px; overflow: hidden; }
+.admin-photo-group { margin-top: 1.5rem; }
+.admin-group-label { font-size: 0.65rem; color: #666; text-transform: uppercase; letter-spacing: 0.12em; margin: 1.4rem 0 0; }
+.admin-reorder-hint { font-size: 0.65rem; color: #555; letter-spacing: 0.04em; margin-top: 0.6rem; }
+
+.admin-photo-group .admin-grid { margin-top: 0.6rem; }
+
+.admin-photo-card { position: relative; background: #0e0e0e; border: 1px solid #1a1a1a; border-radius: 2px; overflow: hidden; }
+.admin-drag-handle {
+  position: absolute; top: 6px; left: 6px; z-index: 2;
+  width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 3px;
+  color: #ccc; font-size: 0.9rem; line-height: 1; cursor: grab;
+  touch-action: none; -webkit-user-select: none; user-select: none;
+  opacity: 0; transition: opacity 0.15s ease, background 0.15s ease;
+}
+.admin-photo-card:hover .admin-drag-handle { opacity: 1; }
+.admin-drag-handle:hover { background: rgba(0, 0, 0, 0.85); color: #fff; }
+.admin-drag-handle:active { cursor: grabbing; }
 .admin-photo-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .admin-photo-card-info { padding: 0.6rem; display: flex; flex-direction: column; gap: 0.35rem; }
 .admin-photo-card-meta { font-size: 0.65rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
