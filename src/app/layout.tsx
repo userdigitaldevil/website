@@ -3,6 +3,7 @@ import './globals.css';
 import SiteFooter from '@/components/SiteFooter';
 import CustomCursor from '@/components/CustomCursor';
 import PageLoader from '@/components/PageLoader';
+import AnalyticsBeacon from '@/components/AnalyticsBeacon';
 
 export const metadata: Metadata = {
   title: 'Portfolio',
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <PageLoader />
+        <AnalyticsBeacon />
         {children}
         <SiteFooter />
         <CustomCursor />

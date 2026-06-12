@@ -60,6 +60,15 @@ function initDb(db: Database.Database) {
       value TEXT NOT NULL DEFAULT '',
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS page_views (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      path TEXT NOT NULL,
+      referrer TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_pv_created ON page_views(created_at);
+    CREATE INDEX IF NOT EXISTS idx_pv_path ON page_views(path);
   `);
 
   // Always sync admin password from env so changing ADMIN_PASSWORD in .env.local takes effect immediately

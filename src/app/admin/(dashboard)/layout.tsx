@@ -11,6 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/videos">Videos</Link>
           <Link href="/admin/projects">Projects</Link>
           <Link href="/admin/content">Content</Link>
+          <Link href="/admin/analytics">Analytics</Link>
           <Link href="/" target="_blank">View Site ↗</Link>
           <form action="/api/auth/logout" method="POST" style={{ display: 'inline' }}>
             <button type="submit" style={{ background: 'none', border: 'none', color: '#555', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em', cursor: 'pointer', fontFamily: 'inherit' }}>

@@ -770,4 +770,89 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
   .admin-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .admin-header { padding: 0.9rem 1.25rem; }
   .admin-nav { gap: 0.75rem; flex-wrap: wrap; }
+
+  .analytics-tables { grid-template-columns: 1fr; }
+  .analytics-bars { height: 80px; }
+}
+
+/* ── Analytics ────────────────────────────────────────────── */
+.analytics-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.analytics-card {
+  background: #0e0e0e;
+  border: 1px solid #1a1a1a;
+  border-radius: 3px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.analytics-card-value {
+  font-size: 2rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: #fff;
+  line-height: 1;
+}
+.analytics-card-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #555;
+}
+
+.analytics-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 100px;
+  margin-top: 1rem;
+  padding: 0 2px;
+}
+.analytics-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+}
+.analytics-bar-fill {
+  width: 100%;
+  background: #e50000;
+  border-radius: 1px 1px 0 0;
+  min-height: 2px;
+  transition: height 0.3s ease;
+}
+.analytics-bar-label {
+  font-size: 0.55rem;
+  color: #444;
+  position: absolute;
+  bottom: -16px;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.analytics-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+.analytics-row-bar {
+  height: 4px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.analytics-row-bar-fill {
+  height: 100%;
+  background: #e50000;
+  border-radius: 2px;
+  transition: width 0.4s ease;
 }
