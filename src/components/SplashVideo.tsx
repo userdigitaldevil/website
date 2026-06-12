@@ -38,7 +38,6 @@ export default function SplashVideo({ src }: { src: string }) {
       muted
       loop
       playsInline
-      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
     />
   );
 }
