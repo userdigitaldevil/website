@@ -576,7 +576,8 @@ img, video { display: block; max-width: 100%; }
   .gallery-wrap { padding: 0 1rem 4rem; }
 
   /* Contact: tighter padding */
-  .contact-content { padding: 0 1.25rem 4rem; flex-direction: column; align-items: flex-start; }
+  .contact-content { padding: 0 1.25rem 4rem; flex-direction: row; align-items: flex-end; }
+  .contact-image { width: 100px; }
   .contact-image { width: 160px; }
 
   /* Admin: single column on mobile */
