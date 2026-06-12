@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import GlyphText from '@/components/GlyphText';
 
 type SubNav = { label: string; href: string }[];
 
@@ -45,7 +46,7 @@ export default function Nav() {
               href={item.href}
               className={`nav-link${isActive(item.href) ? ' active' : ''}`}
             >
-              {item.label}
+              <GlyphText text={item.label} />
             </Link>
           ))}
         </div>
@@ -59,7 +60,7 @@ export default function Nav() {
               href={item.href}
               className={`sub-link${path.startsWith(item.href) ? ' active' : ''}`}
             >
-              {item.label}
+              <GlyphText text={item.label} />
             </Link>
           ))}
         </div>
