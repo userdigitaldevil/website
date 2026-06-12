@@ -1,12 +1,15 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import { mkdirSync } from 'fs';
 import bcrypt from 'bcryptjs';
 
 let _db: Database.Database | null = null;
 
 export function getDb(): Database.Database {
   if (!_db) {
-    const dbPath = path.join(process.cwd(), 'data', 'site.db');
+    const dbDir = path.join(process.cwd(), 'data');
+    mkdirSync(dbDir, { recursive: true });
+    const dbPath = path.join(dbDir, 'site.db');
     _db = new Database(dbPath);
     _db.pragma('journal_mode = WAL');
     initDb(_db);

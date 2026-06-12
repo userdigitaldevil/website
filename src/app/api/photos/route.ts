@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/auth';
@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
 
   const db = getDb();
   const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'photos');
+  await mkdir(uploadDir, { recursive: true });
 
   const ALLOWED_PHOTO_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'];
   if (!['digital', 'iphone'].includes(category)) {
