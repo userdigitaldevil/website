@@ -1,0 +1,26 @@
+import { getCachedContent } from '@/lib/content';
+
+export default async function ContactPage() {
+  const content = await getCachedContent();
+  const get = (k: string) => content[k] ?? '';
+
+  const contactText = get('contact_text');
+  const contactImage = get('contact_image');
+
+  function imgSrc(val: string) {
+    if (!val) return '';
+    if (val.startsWith('/') || val.startsWith('http')) return val;
+    return `/api/uploads/content/${val}`;
+  }
+
+  return (
+    <div className="contact-content">
+      <div className="contact-body">
+        {contactText && <p className="bio-text">{contactText}</p>}
+      </div>
+      {contactImage && (
+        <img src={imgSrc(contactImage)} alt="" className="contact-image" />
+      )}
+    </div>
+  );
+}
