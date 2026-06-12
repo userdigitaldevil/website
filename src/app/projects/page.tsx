@@ -29,7 +29,7 @@ export default function ProjectsPage() {
                   <img
                     src={p.cover_image.startsWith('/') || p.cover_image.startsWith('http')
                       ? p.cover_image
-                      : `/uploads/photos/${p.cover_image}`}
+                      : `/api/uploads/photos/${p.cover_image}`}
                     alt={p.title}
                   />
                 ) : (

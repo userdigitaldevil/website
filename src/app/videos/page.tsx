@@ -32,7 +32,7 @@ export default function VideosPage() {
               return (
                 <div className="video-item" key={v.id}>
                   <div className="video-embed">
-                    <video autoPlay muted loop playsInline controls src={`/uploads/videos/${v.filename}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <video autoPlay muted loop playsInline controls src={`/api/uploads/videos/${v.filename}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                   {v.title && <p className="video-title">{v.title}</p>}
                 </div>

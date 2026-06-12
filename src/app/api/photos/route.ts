@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   const db = getDb();
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'photos');
+  const uploadDir = path.join(process.cwd(), 'data', 'uploads', 'photos');
   await mkdir(uploadDir, { recursive: true });
 
   const ALLOWED_PHOTO_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'];

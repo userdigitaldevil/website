@@ -21,7 +21,7 @@ export default function BioPage() {
       <div className="bio-content">
         {bioPhoto && (
           <div className="bio-photo">
-            <img src={bioPhoto.startsWith('/') || bioPhoto.startsWith('http') ? bioPhoto : `/uploads/content/${bioPhoto}`} alt={name} />
+            <img src={bioPhoto.startsWith('/') || bioPhoto.startsWith('http') ? bioPhoto : `/api/uploads/content/${bioPhoto}`} alt={name} />
           </div>
         )}
         {bioText && <p className="bio-text">{bioText}</p>}

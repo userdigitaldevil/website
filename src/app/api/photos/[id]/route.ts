@@ -14,7 +14,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   if (!photo) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   try {
-    await unlink(path.join(process.cwd(), 'public', 'uploads', 'photos', photo.filename));
+    await unlink(path.join(process.cwd(), 'data', 'uploads', 'photos', photo.filename));
   } catch {}
 
   db.prepare('DELETE FROM photos WHERE id = ?').run(Number(id));

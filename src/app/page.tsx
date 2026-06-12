@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 function mediaSrc(val: string, folder: string) {
   if (!val) return '';
   if (val.startsWith('/') || val.startsWith('http')) return val;
-  return `/uploads/${folder}/${val}`;
+  return `/api/uploads/${folder}/${val}`;
 }
 
 export default function SplashPage() {

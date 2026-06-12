@@ -101,7 +101,7 @@ export default function AdminPhotos() {
         <div className="admin-grid">
           {visible.map(p => (
             <div className="admin-photo-card" key={p.id}>
-              <img src={`/uploads/photos/${p.filename}`} alt={p.original_name || ''} />
+              <img src={`/api/uploads/photos/${p.filename}`} alt={p.original_name || ''} />
               <div className="admin-photo-card-info">
                 <p className="admin-photo-card-meta">{p.original_name || p.filename}</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>

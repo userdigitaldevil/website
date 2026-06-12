@@ -50,7 +50,7 @@ export default function AdminContent() {
   }
 
   const splashVidSrc = fields.splash_video
-    ? (fields.splash_video.startsWith('/') || fields.splash_video.startsWith('http') ? fields.splash_video : `/uploads/splash/${fields.splash_video}`)
+    ? (fields.splash_video.startsWith('/') || fields.splash_video.startsWith('http') ? fields.splash_video : `/api/uploads/splash/${fields.splash_video}`)
     : null;
 
   return (
@@ -79,7 +79,7 @@ export default function AdminContent() {
                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadMedia(f, 'content', 'splash_image', setUploadingSplashImg); }} />
               </div>
               {fields.splash_image && (
-                <img src={fields.splash_image.startsWith('/') || fields.splash_image.startsWith('http') ? fields.splash_image : `/uploads/content/${fields.splash_image}`}
+                <img src={fields.splash_image.startsWith('/') || fields.splash_image.startsWith('http') ? fields.splash_image : `/api/uploads/content/${fields.splash_image}`}
                   alt="" style={{ marginTop: '0.5rem', maxHeight: 70, objectFit: 'cover', borderRadius: 2, opacity: 0.8 }} />
               )}
             </div>
@@ -134,7 +134,7 @@ export default function AdminContent() {
                 <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <audio controls src={
                     fields.splash_music.startsWith('/') || fields.splash_music.startsWith('http')
-                      ? fields.splash_music : `/uploads/music/${fields.splash_music}`
+                      ? fields.splash_music : `/api/uploads/music/${fields.splash_music}`
                   } style={{ height: 32, flex: 1 }} />
                   <button type="button" className="admin-btn danger small"
                     onClick={() => set('splash_music', '')}>Remove</button>
@@ -156,7 +156,7 @@ export default function AdminContent() {
                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadMedia(f, 'content', 'bio_photo', setUploadingBioPhoto); }} />
               </div>
               {fields.bio_photo && (
-                <img src={fields.bio_photo.startsWith('/') || fields.bio_photo.startsWith('http') ? fields.bio_photo : `/uploads/content/${fields.bio_photo}`}
+                <img src={fields.bio_photo.startsWith('/') || fields.bio_photo.startsWith('http') ? fields.bio_photo : `/api/uploads/content/${fields.bio_photo}`}
                   alt="" style={{ marginTop: '0.5rem', maxHeight: 70, objectFit: 'cover', borderRadius: 2, opacity: 0.8 }} />
               )}
             </div>
@@ -185,7 +185,7 @@ export default function AdminContent() {
                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadMedia(f, 'content', 'contact_image', setUploadingContactImg); }} />
               </div>
               {fields.contact_image && (
-                <img src={fields.contact_image.startsWith('/') || fields.contact_image.startsWith('http') ? fields.contact_image : `/uploads/content/${fields.contact_image}`}
+                <img src={fields.contact_image.startsWith('/') || fields.contact_image.startsWith('http') ? fields.contact_image : `/api/uploads/content/${fields.contact_image}`}
                   alt="" style={{ marginTop: '0.5rem', maxHeight: 80, objectFit: 'contain', borderRadius: 2, opacity: 0.8 }} />
               )}
             </div>

@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'File type not allowed' }, { status: 400 });
   }
 
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads', folder);
+  const uploadDir = path.join(process.cwd(), 'data', 'uploads', folder);
   await mkdir(uploadDir, { recursive: true });
 
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;

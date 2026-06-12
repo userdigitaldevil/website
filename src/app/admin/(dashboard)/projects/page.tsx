@@ -95,7 +95,7 @@ export default function AdminProjects() {
   const coverSrc = form.cover_image
     ? (form.cover_image.startsWith('/') || form.cover_image.startsWith('http')
       ? form.cover_image
-      : `/uploads/photos/${form.cover_image}`)
+      : `/api/uploads/photos/${form.cover_image}`)
     : null;
 
   return (
@@ -149,7 +149,7 @@ export default function AdminProjects() {
           <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#0e0e0e', border: '1px solid #1a1a1a', borderRadius: 2, padding: '0.75rem 1rem' }}>
             {p.cover_image && (
               <img
-                src={p.cover_image.startsWith('/') || p.cover_image.startsWith('http') ? p.cover_image : `/uploads/photos/${p.cover_image}`}
+                src={p.cover_image.startsWith('/') || p.cover_image.startsWith('http') ? p.cover_image : `/api/uploads/photos/${p.cover_image}`}
                 alt=""
                 style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
               />

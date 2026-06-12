@@ -15,7 +15,7 @@ export default function ContactPage() {
   function imgSrc(val: string) {
     if (!val) return '';
     if (val.startsWith('/') || val.startsWith('http')) return val;
-    return `/uploads/content/${val}`;
+    return `/api/uploads/content/${val}`;
   }
 
   return (

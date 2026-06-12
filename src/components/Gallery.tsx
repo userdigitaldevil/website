@@ -15,10 +15,10 @@ export default function Gallery({ photosByYear }: { photosByYear: Record<number,
             {photosByYear[year].map(photo => (
               <img
                 key={photo.id}
-                src={`/uploads/photos/${photo.filename}`}
+                src={`/api/uploads/photos/${photo.filename}`}
                 alt={photo.original_name || ''}
                 loading="lazy"
-                onClick={() => setLightbox(`/uploads/photos/${photo.filename}`)}
+                onClick={() => setLightbox(`/api/uploads/photos/${photo.filename}`)}
               />
             ))}
           </div>
