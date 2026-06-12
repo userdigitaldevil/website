@@ -2,7 +2,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 const POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const DIAERESIS = '̈'; // combining diaeresis — stacks ¨ above previous char
+const DIAERESIS = '̈';
 
 function ShuffleLetter({ char }: { char: string }) {
   const [display, setDisplay] = useState(char);

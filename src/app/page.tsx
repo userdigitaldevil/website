@@ -3,6 +3,7 @@ import Timecode from '@/components/Timecode';
 import SplashAudio from '@/components/SplashAudio';
 import SplashVideo from '@/components/SplashVideo';
 import Link from 'next/link';
+import GlyphText from '@/components/GlyphText';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,7 @@ export default function SplashPage() {
 
         <div className="splash-right">
           <Timecode siteName={name} variant="inline" />
-          <Link href="/digital" className="splash-enter">ENTER</Link>
+          <Link href="/digital" className="splash-enter"><GlyphText text="ENTER" /></Link>
         </div>
       </section>
 
