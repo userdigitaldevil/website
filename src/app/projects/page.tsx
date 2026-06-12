@@ -1,13 +1,16 @@
 import { getDb, type Project } from '@/lib/db';
+import { getCachedContent } from '@/lib/content';
 import Timecode from '@/components/Timecode';
 import Nav from '@/components/Nav';
 
 export const dynamic = 'force-dynamic';
 
-export default function ProjectsPage() {
-  const db = getDb();
-  const name = (db.prepare('SELECT value FROM content WHERE key=?').get('site_name') as any)?.value ?? 'YOUR NAME';
-  const projects = db.prepare('SELECT * FROM projects ORDER BY sort_order ASC, id DESC').all() as Project[];
+export default async function ProjectsPage() {
+  const [content, projects] = await Promise.all([
+    getCachedContent(),
+    Promise.resolve(getDb().prepare('SELECT * FROM projects ORDER BY sort_order ASC, id DESC').all() as Project[]),
+  ]);
+  const name = content['site_name'] ?? 'YOUR NAME';
 
   return (
     <>

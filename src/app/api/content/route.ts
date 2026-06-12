@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 
@@ -25,5 +26,6 @@ export async function PUT(req: NextRequest) {
     }
   });
   updateAll(body);
+  revalidateTag('content', 'seconds');
   return NextResponse.json({ ok: true });
 }

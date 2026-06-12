@@ -1,12 +1,10 @@
-import { getDb } from '@/lib/db';
+import { getCachedContent } from '@/lib/content';
 import Timecode from '@/components/Timecode';
 import Nav from '@/components/Nav';
 
-export const dynamic = 'force-dynamic';
-
-export default function MenuPage() {
-  const db = getDb();
-  const name = (db.prepare('SELECT value FROM content WHERE key=?').get('site_name') as any)?.value ?? 'YOUR NAME';
+export default async function MenuPage() {
+  const content = await getCachedContent();
+  const name = content['site_name'] ?? 'YOUR NAME';
 
   return (
     <>

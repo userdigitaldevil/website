@@ -1,11 +1,9 @@
-import { getDb } from '@/lib/db';
+import { getCachedContent } from '@/lib/content';
 import Timecode from '@/components/Timecode';
 import SplashAudio from '@/components/SplashAudio';
 import SplashVideo from '@/components/SplashVideo';
 import Link from 'next/link';
 import GlyphText from '@/components/GlyphText';
-
-export const dynamic = 'force-dynamic';
 
 function mediaSrc(val: string, folder: string) {
   if (!val) return '';
@@ -13,9 +11,9 @@ function mediaSrc(val: string, folder: string) {
   return `/api/uploads/${folder}/${val}`;
 }
 
-export default function SplashPage() {
-  const db = getDb();
-  const get = (key: string) => (db.prepare('SELECT value FROM content WHERE key=?').get(key) as any)?.value ?? '';
+export default async function SplashPage() {
+  const content = await getCachedContent();
+  const get = (k: string) => content[k] ?? '';
 
   const name         = get('site_name') || 'YOUR NAME';
   const splashVideo  = mediaSrc(get('splash_video'), 'splash');

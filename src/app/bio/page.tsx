@@ -1,12 +1,10 @@
-import { getDb } from '@/lib/db';
+import { getCachedContent } from '@/lib/content';
 import Timecode from '@/components/Timecode';
 import Nav from '@/components/Nav';
 
-export const dynamic = 'force-dynamic';
-
-export default function BioPage() {
-  const db = getDb();
-  const get = (key: string) => (db.prepare('SELECT value FROM content WHERE key=?').get(key) as any)?.value ?? '';
+export default async function BioPage() {
+  const content = await getCachedContent();
+  const get = (k: string) => content[k] ?? '';
 
   const name = get('site_name');
   const bioText = get('bio_text');

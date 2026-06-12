@@ -1,4 +1,5 @@
 import { getDb, type Video } from '@/lib/db';
+import { getCachedContent } from '@/lib/content';
 import Timecode from '@/components/Timecode';
 import Nav from '@/components/Nav';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -10,10 +11,12 @@ function youtubeId(url: string) {
   return m ? m[1] : null;
 }
 
-export default function VideosPage() {
-  const db = getDb();
-  const name = (db.prepare('SELECT value FROM content WHERE key=?').get('site_name') as any)?.value ?? 'YOUR NAME';
-  const videos = db.prepare('SELECT * FROM videos ORDER BY sort_order ASC, id DESC').all() as Video[];
+export default async function VideosPage() {
+  const [content, videos] = await Promise.all([
+    getCachedContent(),
+    Promise.resolve(getDb().prepare('SELECT * FROM videos ORDER BY sort_order ASC, id DESC').all() as Video[]),
+  ]);
+  const name = content['site_name'] ?? 'YOUR NAME';
 
   return (
     <>
