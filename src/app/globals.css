@@ -156,7 +156,11 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
   line-height: 1.05;
   color: var(--text);
   white-space: nowrap;
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+.nav-link:hover { transform: scale(1.14); }
 
 .nav-link.active {
   text-decoration: underline;
@@ -178,8 +182,11 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
   text-transform: uppercase;
   letter-spacing: 0;
   color: var(--text);
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.sub-link:hover { transform: scale(1.12); }
 .sub-link.active { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ── Gallery ── */
