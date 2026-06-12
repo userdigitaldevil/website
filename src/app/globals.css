@@ -191,7 +191,6 @@ img, video { display: block; max-width: 100%; }
   font-weight: 700;
   line-height: 1.5;
   white-space: pre-wrap;
-  text-transform: uppercase;
   letter-spacing: 0;
   max-width: 900px;
   margin-left: 10rem;
@@ -315,7 +314,6 @@ img, video { display: block; max-width: 100%; }
 .splash-scroll-main {
   font-size: clamp(2rem, 4vw, 5rem);
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: -0.01em;
   line-height: 1.0;
   text-align: center;
@@ -336,7 +334,6 @@ img, video { display: block; max-width: 100%; }
 .splash-scroll-mid {
   font-size: clamp(1rem, 2vw, 2rem);
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0;
   color: #fff;
   text-align: right;
@@ -347,7 +344,6 @@ img, video { display: block; max-width: 100%; }
 .splash-scroll-sub {
   font-size: clamp(0.8rem, 1.3vw, 1.1rem);
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #fff;
   text-align: right;
