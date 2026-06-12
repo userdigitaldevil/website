@@ -69,6 +69,18 @@ export default function AdminContent() {
               <input value={fields.site_name || ''} onChange={e => set('site_name', e.target.value)} />
             </div>
 
+            <div className="admin-field">
+              <label>ENTER button destination (landing page)</label>
+              <select value={fields.enter_destination || '/digital'} onChange={e => set('enter_destination', e.target.value)}>
+                <option value="/bio">Bio + Resume</option>
+                <option value="/contact">Contact</option>
+                <option value="/digital">Photography — Digital</option>
+                <option value="/iphone">Photography — iPhone</option>
+                <option value="/videos">Videos</option>
+                <option value="/projects">Projects</option>
+              </select>
+            </div>
+
             {/* Favicon */}
             <div className="admin-field">
               <label>Favicon (.ico, .png, .svg)</label>

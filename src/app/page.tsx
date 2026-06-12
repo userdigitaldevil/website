@@ -22,6 +22,7 @@ export default async function SplashPage() {
   const splashText    = get('splash_text');
   const splashTextMid = get('splash_text_mid');
   const splashTextSub = get('splash_text_sub');
+  const enterDest     = get('enter_destination') || '/digital';
   const showScroll    = splashText || splashTextMid || splashTextSub;
 
   return (
@@ -39,7 +40,7 @@ export default async function SplashPage() {
 
         <div className="splash-right">
           <Timecode siteName={name} variant="inline" />
-          <Link href="/digital" className="splash-enter"><GlyphText text="ENTER" /></Link>
+          <Link href={enterDest} className="splash-enter"><GlyphText text="ENTER" /></Link>
         </div>
       </section>
 

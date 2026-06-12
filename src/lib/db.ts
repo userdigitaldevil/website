@@ -100,6 +100,7 @@ function initDb(db: Database.Database) {
     ['contact_text', ''],
     ['contact_image', ''],
     ['favicon', ''],
+    ['enter_destination', '/digital'],
   ];
   for (const [key, val] of defaults) insertContent.run(key, val);
 }
