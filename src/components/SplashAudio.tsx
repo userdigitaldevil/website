@@ -8,7 +8,21 @@ export default function SplashAudio({ src }: { src: string }) {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+
+    // Try autoplay immediately; if blocked, start on first user interaction
+    audio.play().then(() => setPlaying(true)).catch(() => {
+      const start = () => {
+        audio.play().then(() => {
+          setPlaying(true);
+          document.removeEventListener('click', start);
+          document.removeEventListener('touchstart', start);
+          document.removeEventListener('keydown', start);
+        }).catch(() => {});
+      };
+      document.addEventListener('click', start);
+      document.addEventListener('touchstart', start);
+      document.addEventListener('keydown', start);
+    });
   }, []);
 
   function toggle() {
