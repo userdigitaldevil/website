@@ -17,16 +17,23 @@ function getTimecode() {
 
 export default function Timecode({ siteName, variant = 'fixed' }: { siteName: string; variant?: 'fixed' | 'inline' }) {
   const [code, setCode] = useState('');
+  const [glitch, setGlitch] = useState(true);
 
   useEffect(() => {
     setCode(getTimecode());
     const id = setInterval(() => setCode(getTimecode()), 40);
-    return () => clearInterval(id);
+    // Remove glitch class after animation completes
+    const off = setTimeout(() => setGlitch(false), 700);
+    return () => { clearInterval(id); clearTimeout(off); };
   }, []);
 
+  const nameEl = (
+    <span className={glitch ? 'site-name glitch-load' : 'site-name'}>{siteName}</span>
+  );
+
   if (variant === 'inline') {
-    return <span className="splash-timecode">{siteName} {code}</span>;
+    return <span className="splash-timecode">{nameEl} {code}</span>;
   }
 
-  return <div className="timecode">{siteName} {code}</div>;
+  return <div className="timecode">{nameEl} {code}</div>;
 }
