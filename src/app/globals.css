@@ -204,8 +204,17 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
 .nav-link:hover { transform: scale(1.14); }
 
 .nav-link.active {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  position: relative;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: currentColor;
 }
 
 /* ── Sub navigation ── */
@@ -228,7 +237,19 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
 }
 
 .sub-link:hover { transform: scale(1.12); }
-.sub-link.active { text-decoration: underline; text-underline-offset: 3px; }
+.sub-link.active {
+  position: relative;
+}
+
+.sub-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: currentColor;
+}
 
 /* ── Gallery ── */
 .gallery-wrap { padding: 0 6rem 6rem; }
@@ -244,7 +265,7 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 3px;
+  gap: 0;
 }
 
 .photo-grid img { width: 100%; height: auto; display: block; cursor: pointer; }
