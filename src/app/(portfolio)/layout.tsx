@@ -1,18 +1,18 @@
 import { getCachedContent } from '@/lib/content';
-import Timecode from '@/components/Timecode';
-import Nav from '@/components/Nav';
+import Sidebar from '@/components/Sidebar';
+import ContentHeader from '@/components/ContentHeader';
 
 export default async function PortfolioLayout({ children }: { children: React.ReactNode }) {
   const content = await getCachedContent();
-  const name = content['site_name'] ?? 'YOUR NAME';
+  const name = content['site_name'] || 'SETHAGUILA';
 
   return (
-    <>
-      <header className="page-header">
-        <Timecode siteName={name} />
-        <Nav />
-      </header>
-      {children}
-    </>
+    <div className="site-layout">
+      <Sidebar siteName={name} />
+      <main className="content">
+        <ContentHeader />
+        {children}
+      </main>
+    </div>
   );
 }

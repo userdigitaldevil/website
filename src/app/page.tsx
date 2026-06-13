@@ -1,10 +1,9 @@
 import { getCachedContent } from '@/lib/content';
-import Timecode from '@/components/Timecode';
 import SplashAudio from '@/components/SplashAudio';
 import SplashVideo from '@/components/SplashVideo';
-import Link from 'next/link';
-import GlyphText from '@/components/GlyphText';
+import LiveClock from '@/components/LiveClock';
 import ZoomImage from '@/components/ZoomImage';
+import Link from 'next/link';
 
 function mediaSrc(val: string, folder: string) {
   if (!val) return '';
@@ -16,7 +15,7 @@ export default async function SplashPage() {
   const content = await getCachedContent();
   const get = (k: string) => content[k] ?? '';
 
-  const name         = get('site_name') || 'YOUR NAME';
+  const name         = get('site_name') || 'SETHAGUILA';
   const splashVideo  = mediaSrc(get('splash_video'), 'splash');
   const splashImage  = mediaSrc(get('splash_image'), 'content');
   const splashMusic  = mediaSrc(get('splash_music'), 'music');
@@ -30,19 +29,24 @@ export default async function SplashPage() {
   return (
     <main className="splash-page">
       <section className="splash-hero">
-        <div className="splash-image-area">
-          <div className="splash-image-inner">
-            {splashVideo ? (
-              <SplashVideo src={splashVideo} />
-            ) : splashImage ? (
-              <img src={splashImage} alt="" />
-            ) : null}
+        <div className="splash-panel">
+          <div className="splash-panel-top">
+            <span className="splash-name">{name}</span>
+            <span className="splash-clock"><LiveClock /> — PORTFOLIO</span>
+          </div>
+          <div className="splash-panel-bottom">
+            <span className="splash-enter-label">[ Enter site ]</span>
+            <Link href={enterDest} className="splash-enter">ENTER</Link>
           </div>
         </div>
-
-        <div className="splash-right">
-          <Timecode siteName={name} variant="inline" />
-          <Link href={enterDest} className="splash-enter"><GlyphText text="ENTER" /></Link>
+        <div className="splash-media">
+          {splashVideo ? (
+            <SplashVideo src={splashVideo} />
+          ) : splashImage ? (
+            <img src={splashImage} alt="" />
+          ) : (
+            <div className="splash-media-empty" />
+          )}
         </div>
       </section>
 
