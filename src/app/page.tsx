@@ -4,6 +4,7 @@ import SplashAudio from '@/components/SplashAudio';
 import SplashVideo from '@/components/SplashVideo';
 import Link from 'next/link';
 import GlyphText from '@/components/GlyphText';
+import ZoomImage from '@/components/ZoomImage';
 
 function mediaSrc(val: string, folder: string) {
   if (!val) return '';
@@ -57,7 +58,7 @@ export default async function SplashPage() {
             </div>
           )}
           {splashImageBottom && (
-            <img src={splashImageBottom} alt="" className="splash-scroll-photo" />
+            <ZoomImage src={splashImageBottom} className="splash-scroll-photo" />
           )}
         </section>
       )}

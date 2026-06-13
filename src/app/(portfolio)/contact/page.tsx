@@ -1,4 +1,5 @@
 import { getCachedContent } from '@/lib/content';
+import ZoomImage from '@/components/ZoomImage';
 
 export default async function ContactPage() {
   const content = await getCachedContent();
@@ -21,8 +22,8 @@ export default async function ContactPage() {
       </div>
       {(contactImage || contactImage2) && (
         <div className="contact-images">
-          {contactImage && <img src={imgSrc(contactImage)} alt="" className="contact-image" />}
-          {contactImage2 && <img src={imgSrc(contactImage2)} alt="" className="contact-image" />}
+          {contactImage && <ZoomImage src={imgSrc(contactImage)} className="contact-image" />}
+          {contactImage2 && <ZoomImage src={imgSrc(contactImage2)} className="contact-image" />}
         </div>
       )}
     </div>

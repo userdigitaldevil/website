@@ -28,7 +28,8 @@ export default function VideoGallery({ videos }: { videos: Video[] }) {
   const [activeYear, setActiveYear] = useState<number | 'all'>('all');
 
   const years = [...new Set(videos.map(v => v.year).filter((y): y is number => y != null))].sort((a, b) => b - a);
-  const visible = activeYear === 'all' ? videos : videos.filter(v => v.year === activeYear);
+  const visibleYears = activeYear === 'all' ? years : years.filter(y => y === activeYear);
+  const undated = activeYear === 'all' ? videos.filter(v => v.year == null) : [];
 
   return (
     <div className="gallery-wrap">
@@ -52,9 +53,20 @@ export default function VideoGallery({ videos }: { videos: Video[] }) {
         </div>
       )}
 
-      <div className="video-grid">
-        {visible.map(v => <VideoItem key={v.id} video={v} />)}
-      </div>
+      {visibleYears.map(year => (
+        <div key={year}>
+          {activeYear === 'all' && years.length > 1 && <p className="year-label">{year}</p>}
+          <div className="video-grid">
+            {videos.filter(v => v.year === year).map(v => <VideoItem key={v.id} video={v} />)}
+          </div>
+        </div>
+      ))}
+
+      {undated.length > 0 && (
+        <div className="video-grid">
+          {undated.map(v => <VideoItem key={v.id} video={v} />)}
+        </div>
+      )}
     </div>
   );
 }

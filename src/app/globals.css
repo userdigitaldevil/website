@@ -294,7 +294,7 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
 }
 
 .year-label {
-  font-size: var(--sub-size);
+  font-size: clamp(1.1rem, 1.6vw, 1.5rem);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
