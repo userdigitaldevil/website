@@ -4,13 +4,36 @@ import type { Photo } from '@/lib/db';
 
 export default function Gallery({ photosByYear }: { photosByYear: Record<number, Photo[]> }) {
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [activeYear, setActiveYear] = useState<number | 'all'>('all');
+
   const years = Object.keys(photosByYear).map(Number).sort((a, b) => b - a);
+  const visibleYears = activeYear === 'all' ? years : years.filter(y => y === activeYear);
 
   return (
     <div className="gallery-wrap">
-      {years.map(year => (
+      {years.length > 1 && (
+        <div className="year-filter">
+          <button
+            className={`year-filter-btn${activeYear === 'all' ? ' active' : ''}`}
+            onClick={() => setActiveYear('all')}
+          >
+            ALL
+          </button>
+          {years.map(y => (
+            <button
+              key={y}
+              className={`year-filter-btn${activeYear === y ? ' active' : ''}`}
+              onClick={() => setActiveYear(y)}
+            >
+              {y}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {visibleYears.map(year => (
         <div key={year}>
-          <p className="year-label">{year}</p>
+          {activeYear === 'all' && <p className="year-label">{year}</p>}
           <div className="photo-grid">
             {photosByYear[year].map(photo => (
               <img
