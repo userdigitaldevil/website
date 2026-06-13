@@ -1,6 +1,7 @@
 import { getDb, type Project } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Projects' };
 
 export default function ProjectsPage() {
   const projects = getDb().prepare('SELECT * FROM projects ORDER BY sort_order ASC, id DESC').all() as Project[];

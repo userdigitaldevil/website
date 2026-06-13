@@ -12,8 +12,12 @@ export async function generateMetadata(): Promise<Metadata> {
   const iconUrl = favicon
     ? (favicon.startsWith('/') || favicon.startsWith('http') ? favicon : `/api/uploads/content/${favicon}`)
     : '/favicon.ico';
+  const siteName = content['site_name'] || 'SETHAGUILA';
   return {
-    title: 'Portfolio',
+    title: {
+      default: siteName,
+      template: `${siteName} - %s`,
+    },
     icons: { icon: iconUrl },
   };
 }

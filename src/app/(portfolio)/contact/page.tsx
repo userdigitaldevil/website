@@ -1,6 +1,8 @@
 import { getCachedContent } from '@/lib/content';
 import ZoomImage from '@/components/ZoomImage';
 
+export const metadata = { title: 'Contact' };
+
 export default async function ContactPage() {
   const content = await getCachedContent();
   const get = (k: string) => content[k] ?? '';

@@ -1,6 +1,8 @@
 import { getCachedContent } from '@/lib/content';
 import ZoomImage from '@/components/ZoomImage';
 
+export const metadata = { title: 'Bio + Resume' };
+
 export default async function BioPage() {
   const content = await getCachedContent();
   const get = (k: string) => content[k] ?? '';
