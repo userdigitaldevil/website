@@ -22,8 +22,9 @@ export default async function SplashPage() {
   const splashText    = get('splash_text');
   const splashTextMid = get('splash_text_mid');
   const splashTextSub = get('splash_text_sub');
+  const splashImageBottom = mediaSrc(get('splash_image_bottom'), 'content');
   const enterDest     = get('enter_destination') || '/digital';
-  const showScroll    = splashText || splashTextMid || splashTextSub;
+  const showScroll    = splashText || splashTextMid || splashTextSub || splashImageBottom;
 
   return (
     <main className="splash-page">
@@ -54,6 +55,9 @@ export default async function SplashPage() {
               {splashTextMid && <p className="splash-scroll-mid">{splashTextMid}</p>}
               {splashTextSub && <p className="splash-scroll-sub">{splashTextSub}</p>}
             </div>
+          )}
+          {splashImageBottom && (
+            <img src={splashImageBottom} alt="" className="splash-scroll-photo" />
           )}
         </section>
       )}

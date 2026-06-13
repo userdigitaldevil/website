@@ -10,6 +10,8 @@ export default function AdminContent() {
   const [uploadingMusic, setUploadingMusic] = useState(false);
   const [uploadingBioPhoto, setUploadingBioPhoto] = useState(false);
   const [uploadingContactImg, setUploadingContactImg] = useState(false);
+  const [uploadingContactImg2, setUploadingContactImg2] = useState(false);
+  const [uploadingSplashBottom, setUploadingSplashBottom] = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
 
   const splashImgRef   = useRef<HTMLInputElement>(null);
@@ -17,6 +19,8 @@ export default function AdminContent() {
   const musicRef       = useRef<HTMLInputElement>(null);
   const bioPhotoRef    = useRef<HTMLInputElement>(null);
   const contactImgRef  = useRef<HTMLInputElement>(null);
+  const contactImg2Ref = useRef<HTMLInputElement>(null);
+  const splashBottomRef = useRef<HTMLInputElement>(null);
   const faviconRef     = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -156,6 +160,24 @@ export default function AdminContent() {
               <label>Landing Page — Footer Text (right-aligned, smallest, very bottom)</label>
               <textarea rows={3} value={fields.splash_text_sub || ''} onChange={e => set('splash_text_sub', e.target.value)} placeholder="e.g. copyright, credits, or a closing note..." />
             </div>
+            <div className="admin-field">
+              <label>Landing Page — Bottom Photo (small, shown under footer text)</label>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <input value={fields.splash_image_bottom || ''} onChange={e => set('splash_image_bottom', e.target.value)} placeholder="filename.jpg or https://..." style={{ flex: 1 }} />
+                <button type="button" className="admin-btn secondary small" onClick={() => splashBottomRef.current?.click()} disabled={uploadingSplashBottom}>
+                  {uploadingSplashBottom ? '…' : 'Upload'}
+                </button>
+                <input ref={splashBottomRef} type="file" accept="image/*" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadMedia(f, 'content', 'splash_image_bottom', setUploadingSplashBottom); }} />
+              </div>
+              {fields.splash_image_bottom && (
+                <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <img src={fields.splash_image_bottom.startsWith('/') || fields.splash_image_bottom.startsWith('http') ? fields.splash_image_bottom : `/api/uploads/content/${fields.splash_image_bottom}`}
+                    alt="" style={{ maxHeight: 70, objectFit: 'cover', borderRadius: 2, opacity: 0.8 }} />
+                  <button type="button" className="admin-btn danger small" onClick={() => set('splash_image_bottom', '')}>Remove</button>
+                </div>
+              )}
+            </div>
 
             {/* Splash Music */}
             <div className="admin-field">
@@ -224,6 +246,21 @@ export default function AdminContent() {
               </div>
               {fields.contact_image && (
                 <img src={fields.contact_image.startsWith('/') || fields.contact_image.startsWith('http') ? fields.contact_image : `/api/uploads/content/${fields.contact_image}`}
+                  alt="" style={{ marginTop: '0.5rem', maxHeight: 80, objectFit: 'contain', borderRadius: 2, opacity: 0.8 }} />
+              )}
+            </div>
+            <div className="admin-field">
+              <label>Contact Image 2 (shown below the first image)</label>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <input value={fields.contact_image_2 || ''} onChange={e => set('contact_image_2', e.target.value)} placeholder="filename.jpg or https://..." style={{ flex: 1 }} />
+                <button type="button" className="admin-btn secondary small" onClick={() => contactImg2Ref.current?.click()} disabled={uploadingContactImg2}>
+                  {uploadingContactImg2 ? '…' : 'Upload'}
+                </button>
+                <input ref={contactImg2Ref} type="file" accept="image/*" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadMedia(f, 'content', 'contact_image_2', setUploadingContactImg2); }} />
+              </div>
+              {fields.contact_image_2 && (
+                <img src={fields.contact_image_2.startsWith('/') || fields.contact_image_2.startsWith('http') ? fields.contact_image_2 : `/api/uploads/content/${fields.contact_image_2}`}
                   alt="" style={{ marginTop: '0.5rem', maxHeight: 80, objectFit: 'contain', borderRadius: 2, opacity: 0.8 }} />
               )}
             </div>

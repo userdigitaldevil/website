@@ -358,6 +358,13 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
 
 .contact-body { flex: 1; }
 
+.contact-images {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
 .contact-image {
   width: 220px;
   height: auto;
@@ -553,6 +560,15 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
   color: #fff;
   text-align: right;
   white-space: pre-wrap;
+}
+
+.splash-scroll-photo {
+  align-self: flex-end;
+  width: clamp(120px, 18vw, 240px);
+  height: auto;
+  object-fit: contain;
+  margin-top: 1.5rem;
+  display: block;
 }
 
 .splash-music-btn {

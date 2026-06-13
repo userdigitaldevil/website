@@ -6,6 +6,7 @@ export default async function ContactPage() {
 
   const contactText = get('contact_text');
   const contactImage = get('contact_image');
+  const contactImage2 = get('contact_image_2');
 
   function imgSrc(val: string) {
     if (!val) return '';
@@ -18,8 +19,11 @@ export default async function ContactPage() {
       <div className="contact-body">
         {contactText && <p className="bio-text">{contactText}</p>}
       </div>
-      {contactImage && (
-        <img src={imgSrc(contactImage)} alt="" className="contact-image" />
+      {(contactImage || contactImage2) && (
+        <div className="contact-images">
+          {contactImage && <img src={imgSrc(contactImage)} alt="" className="contact-image" />}
+          {contactImage2 && <img src={imgSrc(contactImage2)} alt="" className="contact-image" />}
+        </div>
       )}
     </div>
   );

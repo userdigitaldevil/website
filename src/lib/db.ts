@@ -106,6 +106,8 @@ function initDb(db: Database.Database) {
     ['splash_text_sub', ''],
     ['contact_text', ''],
     ['contact_image', ''],
+    ['contact_image_2', ''],
+    ['splash_image_bottom', ''],
     ['favicon', ''],
     ['enter_destination', '/digital'],
   ];
