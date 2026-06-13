@@ -661,6 +661,17 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
 
 .admin-drag-handle.inline { position: static; opacity: 0.55; width: 22px; height: 22px; font-size: 0.8rem; }
 .admin-drag-handle.inline:hover { opacity: 1; }
+
+.admin-photo-selected { outline: 2px solid rgba(229,0,0,0.6) !important; }
+.admin-select-check {
+  position: absolute; top: 6px; right: 6px; z-index: 3;
+  width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.65); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 50%;
+  color: #fff; font-size: 0.7rem; line-height: 1; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.admin-photo-selected .admin-select-check { background: #e50000; border-color: #e50000; }
+.admin-photo-card:hover .admin-select-check { opacity: 1; }
 .admin-photo-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .admin-photo-card-info { padding: 0.6rem; display: flex; flex-direction: column; gap: 0.35rem; }
 .admin-photo-card-meta { font-size: 0.65rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }

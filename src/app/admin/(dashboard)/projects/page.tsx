@@ -16,21 +16,9 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-type Project = {
-  id: number;
-  title: string;
-  description: string;
-  cover_image: string;
-  year: string;
-  sort_order: number;
-};
+type Project = { id: number; title: string; description: string; cover_image: string; year: string; sort_order: number };
 
-const blank = (): Omit<Project, 'id' | 'sort_order'> => ({
-  title: '',
-  description: '',
-  cover_image: '',
-  year: String(new Date().getFullYear()),
-});
+const blank = (): Omit<Project, 'id' | 'sort_order'> => ({ title: '', description: '', cover_image: '', year: String(new Date().getFullYear()) });
 
 export default function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -38,6 +26,8 @@ export default function AdminProjects() {
   const [editId, setEditId] = useState<number | null>(null);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -48,9 +38,7 @@ export default function AdminProjects() {
 
   useEffect(() => { load(); }, []);
 
-  function setField(k: keyof typeof form, v: string) {
-    setForm(prev => ({ ...prev, [k]: v }));
-  }
+  function setField(k: keyof typeof form, v: string) { setForm(prev => ({ ...prev, [k]: v })); }
 
   async function uploadCover(file: File) {
     setUploading(true);
@@ -69,25 +57,12 @@ export default function AdminProjects() {
   async function save() {
     setMsg(null);
     const body = { ...form, year: form.year ? Number(form.year) : null };
-    let res: Response;
-    if (editId !== null) {
-      res = await fetch(`/api/projects/${editId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-    } else {
-      res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-    }
+    const res = editId !== null
+      ? await fetch(`/api/projects/${editId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      : await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (!res.ok) { setMsg({ type: 'error', text: 'Save failed.' }); return; }
     setMsg({ type: 'success', text: editId !== null ? 'Project updated!' : 'Project added!' });
-    setForm(blank());
-    setEditId(null);
-    load();
+    setForm(blank()); setEditId(null); load();
   }
 
   function startEdit(p: Project) {
@@ -96,16 +71,34 @@ export default function AdminProjects() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function cancelEdit() {
-    setEditId(null);
-    setForm(blank());
-    setMsg(null);
-  }
+  function cancelEdit() { setEditId(null); setForm(blank()); setMsg(null); }
 
   async function del(id: number) {
     if (!confirm('Delete this project?')) return;
     await fetch(`/api/projects/${id}`, { method: 'DELETE' });
     load();
+  }
+
+  async function bulkDelete() {
+    if (selected.size === 0) return;
+    if (!confirm(`Delete ${selected.size} project${selected.size > 1 ? 's' : ''}?`)) return;
+    setDeleting(true);
+    const res = await fetch('/api/projects/bulk-delete', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: [...selected] }),
+    });
+    setDeleting(false);
+    if (res.ok) { setMsg({ type: 'success', text: `Deleted ${selected.size} project${selected.size > 1 ? 's' : ''}.` }); setSelected(new Set()); load(); }
+    else setMsg({ type: 'error', text: 'Bulk delete failed.' });
+  }
+
+  function toggleSelect(id: number) {
+    setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  }
+
+  function toggleSelectAll() {
+    setSelected(selected.size === projects.length ? new Set() : new Set(projects.map(p => p.id)));
   }
 
   async function handleDragEnd(e: DragEndEvent) {
@@ -126,10 +119,10 @@ export default function AdminProjects() {
   }
 
   const coverSrc = form.cover_image
-    ? (form.cover_image.startsWith('/') || form.cover_image.startsWith('http')
-      ? form.cover_image
-      : `/api/uploads/photos/${form.cover_image}`)
+    ? (form.cover_image.startsWith('/') || form.cover_image.startsWith('http') ? form.cover_image : `/api/uploads/photos/${form.cover_image}`)
     : null;
+
+  const allSelected = projects.length > 0 && selected.size === projects.length;
 
   return (
     <>
@@ -156,33 +149,38 @@ export default function AdminProjects() {
             <button type="button" className="admin-btn secondary small" onClick={() => fileRef.current?.click()} disabled={uploading}>
               {uploading ? '…' : 'Upload'}
             </button>
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-              onChange={e => { const f = e.target.files?.[0]; if (f) uploadCover(f); }} />
+            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) uploadCover(f); }} />
           </div>
-          {coverSrc && (
-            <img src={coverSrc} alt="cover preview" style={{ marginTop: '0.5rem', maxHeight: 100, objectFit: 'cover', borderRadius: 2, opacity: 0.8 }} />
-          )}
+          {coverSrc && <img src={coverSrc} alt="cover preview" style={{ marginTop: '0.5rem', maxHeight: 100, objectFit: 'cover', borderRadius: 2, opacity: 0.8 }} />}
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button className="admin-btn" onClick={save}>{editId !== null ? 'Update Project' : 'Add Project'}</button>
-          {editId !== null && (
-            <button className="admin-btn secondary" onClick={cancelEdit}>Cancel</button>
-          )}
+          {editId !== null && <button className="admin-btn secondary" onClick={cancelEdit}>Cancel</button>}
         </div>
       </div>
 
-      <p className="admin-section-title mt-2">All Projects ({projects.length})</p>
-      <p className="admin-reorder-hint">Drag the ⠿ handle to reorder projects.</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginTop: '2rem' }}>
+        <p className="admin-section-title" style={{ margin: 0 }}>All Projects ({projects.length})</p>
+        {projects.length > 0 && (
+          <button type="button" className="admin-btn secondary small" onClick={toggleSelectAll}>
+            {allSelected ? 'Deselect All' : 'Select All'}
+          </button>
+        )}
+        {selected.size > 0 && (
+          <button type="button" className="admin-btn danger small" onClick={bulkDelete} disabled={deleting}>
+            {deleting ? 'Deleting…' : `Delete ${selected.size} selected`}
+          </button>
+        )}
+      </div>
+      <p className="admin-reorder-hint">Drag ⠿ to reorder · check to select for bulk delete.</p>
 
-      {projects.length === 0 && (
-        <p style={{ color: '#444', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>No projects yet.</p>
-      )}
+      {projects.length === 0 && <p style={{ color: '#444', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>No projects yet.</p>}
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: 700 }}>
             {projects.map(p => (
-              <SortableProjectRow key={p.id} project={p} onEdit={startEdit} onDelete={del} />
+              <SortableProjectRow key={p.id} project={p} selected={selected.has(p.id)} onToggleSelect={toggleSelect} onEdit={startEdit} onDelete={del} />
             ))}
           </div>
         </SortableContext>
@@ -191,12 +189,10 @@ export default function AdminProjects() {
   );
 }
 
-function SortableProjectRow({
-  project: p,
-  onEdit,
-  onDelete,
-}: {
+function SortableProjectRow({ project: p, selected, onToggleSelect, onEdit, onDelete }: {
   project: Project;
+  selected: boolean;
+  onToggleSelect: (id: number) => void;
   onEdit: (p: Project) => void;
   onDelete: (id: number) => void;
 }) {
@@ -211,23 +207,18 @@ function SortableProjectRow({
 
   return (
     <div ref={setNodeRef} style={style}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#0e0e0e', border: '1px solid #1a1a1a', borderRadius: 2, padding: '0.75rem 1rem' }}>
-        <button
-          type="button"
-          className="admin-drag-handle inline"
-          aria-label="Drag to reorder"
-          {...attributes}
-          {...listeners}
-        >
-          ⠿
-        </button>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '1rem',
+        background: selected ? 'rgba(229,0,0,0.07)' : '#0e0e0e',
+        border: `1px solid ${selected ? 'rgba(229,0,0,0.3)' : '#1a1a1a'}`,
+        borderRadius: 2, padding: '0.75rem 1rem',
+      }}>
+        <button type="button" className="admin-drag-handle inline" aria-label="Drag to reorder" {...attributes} {...listeners}>⠿</button>
+        <input type="checkbox" checked={selected} onChange={() => onToggleSelect(p.id)}
+          style={{ accentColor: '#e50000', width: 14, height: 14, cursor: 'pointer', flexShrink: 0 }} />
         {p.cover_image && (
-          <img
-            src={p.cover_image.startsWith('/') || p.cover_image.startsWith('http') ? p.cover_image : `/api/uploads/photos/${p.cover_image}`}
-            alt=""
-            style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
-            draggable={false}
-          />
+          <img src={p.cover_image.startsWith('/') || p.cover_image.startsWith('http') ? p.cover_image : `/api/uploads/photos/${p.cover_image}`}
+            alt="" style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }} draggable={false} />
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.1rem' }}>{p.title}</p>

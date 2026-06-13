@@ -27,6 +27,8 @@ export default function AdminPhotos() {
   const [category, setCategory] = useState('digital');
   const [year, setYear] = useState(new Date().getFullYear());
   const [filterCat, setFilterCat] = useState('all');
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     const res = await fetch('/api/photos');
@@ -61,6 +63,41 @@ export default function AdminPhotos() {
     else setMsg({ type: 'error', text: 'Delete failed.' });
   }
 
+  async function bulkDelete() {
+    if (selected.size === 0) return;
+    if (!confirm(`Delete ${selected.size} photo${selected.size > 1 ? 's' : ''}?`)) return;
+    setDeleting(true);
+    const res = await fetch('/api/photos/bulk-delete', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: [...selected] }),
+    });
+    setDeleting(false);
+    if (res.ok) {
+      setMsg({ type: 'success', text: `Deleted ${selected.size} photo${selected.size > 1 ? 's' : ''}.` });
+      setSelected(new Set());
+      load();
+    } else {
+      setMsg({ type: 'error', text: 'Bulk delete failed.' });
+    }
+  }
+
+  function toggleSelect(id: number) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (selected.size === visible.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(visible.map(p => p.id)));
+    }
+  }
+
   async function updatePhoto(id: number, field: string, value: string | number) {
     const res = await fetch(`/api/photos/${id}`, {
       method: 'PATCH',
@@ -71,8 +108,6 @@ export default function AdminPhotos() {
     else setMsg({ type: 'error', text: 'Update failed.' });
   }
 
-  // Reorder one (category, year) group: optimistically rewrite the flat array
-  // at the exact positions the group occupied, then persist in one transaction.
   async function reorderGroup(key: string, reordered: Photo[]) {
     setPhotos(prev => {
       const next = prev.slice();
@@ -81,7 +116,6 @@ export default function AdminPhotos() {
       slots.forEach((flatIdx, k) => { next[flatIdx] = reordered[k]; });
       return next;
     });
-
     const res = await fetch('/api/photos/reorder', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -92,7 +126,6 @@ export default function AdminPhotos() {
 
   const visible = filterCat === 'all' ? photos : photos.filter(p => p.category === filterCat);
 
-  // Build ordered (category, year) groups, preserving server sort order.
   const groups: { key: string; category: string; year: number; items: Photo[] }[] = [];
   const index = new Map<string, number>();
   for (const p of visible) {
@@ -103,6 +136,8 @@ export default function AdminPhotos() {
     }
     groups[index.get(key)!].items.push(p);
   }
+
+  const allSelected = visible.length > 0 && selected.size === visible.length;
 
   return (
     <>
@@ -133,11 +168,23 @@ export default function AdminPhotos() {
       </form>
 
       <div className="mt-2">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p className="admin-section-title" style={{ margin: 0 }}>All Photos ({visible.length})</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <p className="admin-section-title" style={{ margin: 0 }}>All Photos ({visible.length})</p>
+            {visible.length > 0 && (
+              <button type="button" className="admin-btn secondary small" onClick={toggleSelectAll}>
+                {allSelected ? 'Deselect All' : 'Select All'}
+              </button>
+            )}
+            {selected.size > 0 && (
+              <button type="button" className="admin-btn danger small" onClick={bulkDelete} disabled={deleting}>
+                {deleting ? 'Deleting…' : `Delete ${selected.size} selected`}
+              </button>
+            )}
+          </div>
           <select
             value={filterCat}
-            onChange={e => setFilterCat(e.target.value)}
+            onChange={e => { setFilterCat(e.target.value); setSelected(new Set()); }}
             style={{ background: '#111', border: '1px solid #252525', color: '#fff', padding: '0.3rem 0.6rem', fontSize: '0.7rem', fontFamily: 'inherit', borderRadius: 2 }}
           >
             <option value="all">All</option>
@@ -146,12 +193,14 @@ export default function AdminPhotos() {
           </select>
         </div>
 
-        <p className="admin-reorder-hint">Drag the ⠿ handle to reorder photos within a year.</p>
+        <p className="admin-reorder-hint">Drag ⠿ to reorder · click image to select for bulk delete.</p>
 
         {groups.map(group => (
           <PhotoGroup
             key={group.key}
             group={group}
+            selected={selected}
+            onToggleSelect={toggleSelect}
             onReorder={reorderGroup}
             onUpdate={updatePhoto}
             onDelete={deletePhoto}
@@ -163,12 +212,11 @@ export default function AdminPhotos() {
 }
 
 function PhotoGroup({
-  group,
-  onReorder,
-  onUpdate,
-  onDelete,
+  group, selected, onToggleSelect, onReorder, onUpdate, onDelete,
 }: {
   group: { key: string; category: string; year: number; items: Photo[] };
+  selected: Set<number>;
+  onToggleSelect: (id: number) => void;
   onReorder: (key: string, reordered: Photo[]) => void;
   onUpdate: (id: number, field: string, value: string | number) => void;
   onDelete: (id: number) => void;
@@ -192,7 +240,14 @@ function PhotoGroup({
         <SortableContext items={ids} strategy={rectSortingStrategy}>
           <div className="admin-grid">
             {group.items.map(p => (
-              <SortablePhotoCard key={p.id} photo={p} onUpdate={onUpdate} onDelete={onDelete} />
+              <SortablePhotoCard
+                key={p.id}
+                photo={p}
+                selected={selected.has(p.id)}
+                onToggleSelect={onToggleSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+              />
             ))}
           </div>
         </SortableContext>
@@ -202,11 +257,11 @@ function PhotoGroup({
 }
 
 function SortablePhotoCard({
-  photo,
-  onUpdate,
-  onDelete,
+  photo, selected, onToggleSelect, onUpdate, onDelete,
 }: {
   photo: Photo;
+  selected: boolean;
+  onToggleSelect: (id: number) => void;
   onUpdate: (id: number, field: string, value: string | number) => void;
   onDelete: (id: number) => void;
 }) {
@@ -219,35 +274,23 @@ function SortablePhotoCard({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="admin-photo-card">
-      <button
-        type="button"
-        className="admin-drag-handle"
-        aria-label="Drag to reorder"
-        {...attributes}
-        {...listeners}
-      >
-        ⠿
+    <div ref={setNodeRef} style={style} className={`admin-photo-card${selected ? ' admin-photo-selected' : ''}`}>
+      <button type="button" className="admin-drag-handle" aria-label="Drag to reorder" {...attributes} {...listeners}>⠿</button>
+      <button type="button" className="admin-select-check" aria-label="Select" onClick={() => onToggleSelect(photo.id)}>
+        {selected ? '✓' : ''}
       </button>
-      <img src={`/api/uploads/photos/${photo.filename}`} alt={photo.original_name || ''} draggable={false} />
+      <img src={`/api/uploads/photos/${photo.filename}`} alt={photo.original_name || ''} draggable={false} onClick={() => onToggleSelect(photo.id)} style={{ cursor: 'pointer' }} />
       <div className="admin-photo-card-info">
         <p className="admin-photo-card-meta">{photo.original_name || photo.filename}</p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
-          <select
-            value={photo.category}
-            onChange={e => onUpdate(photo.id, 'category', e.target.value)}
-            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.3rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2 }}
-          >
+          <select value={photo.category} onChange={e => onUpdate(photo.id, 'category', e.target.value)}
+            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.3rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2 }}>
             <option value="digital">Digital</option>
             <option value="iphone">iPhone</option>
           </select>
-          <input
-            type="number"
-            value={photo.year}
-            onChange={e => onUpdate(photo.id, 'year', Number(e.target.value))}
+          <input type="number" value={photo.year} onChange={e => onUpdate(photo.id, 'year', Number(e.target.value))}
             min={2000} max={2099}
-            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.3rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2, width: '100%' }}
-          />
+            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.3rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2, width: '100%' }} />
         </div>
         <div className="admin-photo-card-actions">
           <button className="admin-btn danger small" onClick={() => onDelete(photo.id)}>Delete</button>
