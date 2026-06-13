@@ -4,6 +4,7 @@ import SiteFooter from '@/components/SiteFooter';
 import CustomCursor from '@/components/CustomCursor';
 import PageLoader from '@/components/PageLoader';
 import AnalyticsBeacon from '@/components/AnalyticsBeacon';
+import DecoFrame from '@/components/DecoFrame';
 import { getCachedContent } from '@/lib/content';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <PageLoader />
         <AnalyticsBeacon />
+        <DecoFrame />
         {children}
         <SiteFooter />
         <CustomCursor />

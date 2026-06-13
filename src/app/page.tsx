@@ -1,10 +1,9 @@
 import { getCachedContent } from '@/lib/content';
-import Timecode from '@/components/Timecode';
 import SplashAudio from '@/components/SplashAudio';
 import SplashVideo from '@/components/SplashVideo';
-import Link from 'next/link';
-import GlyphText from '@/components/GlyphText';
+import LiveClock from '@/components/LiveClock';
 import ZoomImage from '@/components/ZoomImage';
+import Link from 'next/link';
 
 function mediaSrc(val: string, folder: string) {
   if (!val) return '';
@@ -16,7 +15,7 @@ export default async function SplashPage() {
   const content = await getCachedContent();
   const get = (k: string) => content[k] ?? '';
 
-  const name         = get('site_name') || 'YOUR NAME';
+  const name         = get('site_name') || 'SETHAGUILA';
   const splashVideo  = mediaSrc(get('splash_video'), 'splash');
   const splashImage  = mediaSrc(get('splash_image'), 'content');
   const splashMusic  = mediaSrc(get('splash_music'), 'music');
@@ -30,20 +29,26 @@ export default async function SplashPage() {
   return (
     <main className="splash-page">
       <section className="splash-hero">
-        <div className="splash-image-area">
-          <div className="splash-image-inner">
-            {splashVideo ? (
-              <SplashVideo src={splashVideo} />
-            ) : splashImage ? (
-              <img src={splashImage} alt="" />
-            ) : null}
-          </div>
+        <h1 className="splash-name">{name}</h1>
+        <div className="splash-clock"><LiveClock /> · Portfolio</div>
+
+        <div className="deco-rule">
+          <span className="deco-line" />
+          <span className="deco-diamond">◆</span>
+          <span className="deco-line" />
         </div>
 
-        <div className="splash-right">
-          <Timecode siteName={name} variant="inline" />
-          <Link href={enterDest} className="splash-enter"><GlyphText text="ENTER" /></Link>
-        </div>
+        {(splashVideo || splashImage) && (
+          <div className="splash-media">
+            {splashVideo ? (
+              <SplashVideo src={splashVideo} />
+            ) : (
+              <img src={splashImage} alt="" />
+            )}
+          </div>
+        )}
+
+        <Link href={enterDest} className="splash-enter">Enter</Link>
       </section>
 
       {showScroll && (
