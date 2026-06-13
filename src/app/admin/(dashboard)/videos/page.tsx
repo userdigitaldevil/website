@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-type Video = { id: number; title: string | null; youtube_url: string | null; filename: string | null; category: string };
+type Video = { id: number; title: string | null; youtube_url: string | null; filename: string | null; category: string; year: number | null };
 
 export default function AdminVideos() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -42,7 +42,7 @@ export default function AdminVideos() {
     const res = await fetch('/api/videos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: fd.get('title'), youtube_url: fd.get('youtube_url'), category: fd.get('category') }),
+      body: JSON.stringify({ title: fd.get('title'), youtube_url: fd.get('youtube_url'), category: fd.get('category'), year: fd.get('year') }),
     });
     setSaving(false);
     if (res.ok) { setMsg({ type: 'success', text: 'Video added!' }); load(); (e.target as HTMLFormElement).reset(); }
@@ -68,6 +68,16 @@ export default function AdminVideos() {
     setDeleting(false);
     if (res.ok) { setMsg({ type: 'success', text: `Deleted ${selected.size} video${selected.size > 1 ? 's' : ''}.` }); setSelected(new Set()); load(); }
     else setMsg({ type: 'error', text: 'Bulk delete failed.' });
+  }
+
+  async function updateVideo(id: number, field: string, value: string | number) {
+    const res = await fetch(`/api/videos/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [field]: value }),
+    });
+    if (res.ok) load();
+    else setMsg({ type: 'error', text: 'Update failed.' });
   }
 
   function toggleSelect(id: number) {
@@ -111,6 +121,10 @@ export default function AdminVideos() {
           <label>YouTube URL</label>
           <input name="youtube_url" type="url" placeholder="https://www.youtube.com/watch?v=..." />
         </div>
+        <div className="admin-field">
+          <label>Year (optional)</label>
+          <input name="year" type="number" placeholder={String(new Date().getFullYear())} min={2000} max={2099} style={{ maxWidth: 120 }} />
+        </div>
         <input type="hidden" name="category" value="videos" />
         <button className="admin-btn" type="submit" disabled={saving}>{saving ? 'Adding…' : 'Add Video'}</button>
       </form>
@@ -136,6 +150,7 @@ export default function AdminVideos() {
               <th style={{ width: 32 }}></th>
               <th style={{ width: 32 }}></th>
               <th>Title</th>
+              <th>Year</th>
               <th>Category</th>
               <th>URL</th>
               <th></th>
@@ -145,9 +160,9 @@ export default function AdminVideos() {
             <SortableContext items={videos.map(v => v.id)} strategy={verticalListSortingStrategy}>
               <tbody>
                 {videos.map(v => (
-                  <SortableVideoRow key={v.id} video={v} selected={selected.has(v.id)} onToggleSelect={toggleSelect} onDelete={deleteVideo} />
+                  <SortableVideoRow key={v.id} video={v} selected={selected.has(v.id)} onToggleSelect={toggleSelect} onUpdate={updateVideo} onDelete={deleteVideo} />
                 ))}
-                {videos.length === 0 && <tr><td colSpan={6} style={{ color: '#444', fontStyle: 'italic' }}>No videos yet.</td></tr>}
+                {videos.length === 0 && <tr><td colSpan={7} style={{ color: '#444', fontStyle: 'italic' }}>No videos yet.</td></tr>}
               </tbody>
             </SortableContext>
           </DndContext>
@@ -157,10 +172,11 @@ export default function AdminVideos() {
   );
 }
 
-function SortableVideoRow({ video, selected, onToggleSelect, onDelete }: {
+function SortableVideoRow({ video, selected, onToggleSelect, onUpdate, onDelete }: {
   video: Video;
   selected: boolean;
   onToggleSelect: (id: number) => void;
+  onUpdate: (id: number, field: string, value: string | number) => void;
   onDelete: (id: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: video.id });
@@ -183,6 +199,11 @@ function SortableVideoRow({ video, selected, onToggleSelect, onDelete }: {
           style={{ accentColor: '#e50000', width: 14, height: 14, cursor: 'pointer' }} />
       </td>
       <td>{video.title || '—'}</td>
+      <td>
+        <input type="number" defaultValue={video.year ?? ''} placeholder="—" min={2000} max={2099}
+          onBlur={e => { const v = e.target.value; if (String(video.year ?? '') !== v) onUpdate(video.id, 'year', v); }}
+          style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#ccc', padding: '0.25rem', fontSize: '0.65rem', fontFamily: 'inherit', borderRadius: 2, width: 64 }} />
+      </td>
       <td style={{ textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.06em' }}>{video.category}</td>
       <td style={{ fontSize: '0.7rem', maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {video.youtube_url || video.filename || '—'}

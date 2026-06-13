@@ -302,7 +302,7 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
 }
 
 .photo-grid {
-  column-count: 3;
+  column-count: 4;
   column-gap: 0;
 }
 
@@ -793,6 +793,9 @@ body.cursor-active, body.cursor-active * { cursor: none !important; }
   .splash-scroll { padding: 15vh 1.5rem 5rem; min-height: 200vh; }
   .splash-scroll-main { font-size: clamp(1.5rem, 8vw, 3rem); }
   .splash-scroll-footer { padding-top: 15vh; }
+
+  /* Photos: keep 3 columns on mobile */
+  .photo-grid { column-count: 3; }
 
   /* Videos: single column so they're actually watchable */
   .video-grid { grid-template-columns: 1fr; }

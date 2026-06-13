@@ -12,13 +12,13 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { title, youtube_url, category } = await req.json();
+  const { title, youtube_url, category, year } = await req.json();
   if (!category) return NextResponse.json({ error: 'Category required' }, { status: 400 });
 
   const db = getDb();
   const result = db.prepare(
-    'INSERT INTO videos (title, youtube_url, category) VALUES (?, ?, ?)'
-  ).run(title || null, youtube_url || null, category);
+    'INSERT INTO videos (title, youtube_url, category, year) VALUES (?, ?, ?, ?)'
+  ).run(title || null, youtube_url || null, category, year ? Number(year) : null);
 
   return NextResponse.json({ id: result.lastInsertRowid });
 }

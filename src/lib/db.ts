@@ -41,6 +41,7 @@ function initDb(db: Database.Database) {
       youtube_url TEXT,
       filename TEXT,
       category TEXT NOT NULL DEFAULT 'videos',
+      year INTEGER,
       sort_order INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -70,6 +71,12 @@ function initDb(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_pv_created ON page_views(created_at);
     CREATE INDEX IF NOT EXISTS idx_pv_path ON page_views(path);
   `);
+
+  // Migration: add year column to videos for existing databases
+  const videoCols = db.prepare("PRAGMA table_info(videos)").all() as { name: string }[];
+  if (!videoCols.some(c => c.name === 'year')) {
+    db.exec('ALTER TABLE videos ADD COLUMN year INTEGER');
+  }
 
   // Always sync admin password from env so changing ADMIN_PASSWORD in .env.local takes effect immediately
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
@@ -121,6 +128,7 @@ export type Video = {
   youtube_url: string | null;
   filename: string | null;
   category: string;
+  year: number | null;
   sort_order: number;
   created_at: string;
 };
